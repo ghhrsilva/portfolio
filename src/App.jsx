@@ -4,6 +4,7 @@ import profile from "./assets/profile.jpg";
 function App() {
   return (
     <div className="portfolio">
+      {/* Navbar */}
       <nav className="navbar">
         <div className="nav-logo">Himeth Silva</div>
         <div className="nav-links">
@@ -14,6 +15,7 @@ function App() {
         </div>
       </nav>
 
+      {/* Hero */}
       <section className="hero">
         <div className="hero-inner">
           <div className="hero-text">
@@ -25,17 +27,28 @@ function App() {
             </p>
 
             <div className="hero-buttons">
-              <a href="#projects" className="btn primary-btn">View Projects</a>
-              <a href="#contact" className="btn secondary-btn">Contact Me</a>
+              <a href="#projects" className="btn primary-btn">
+                View Projects
+              </a>
+              <a href="#contact" className="btn secondary-btn">
+                Contact Me
+              </a>
             </div>
           </div>
 
           <div className="hero-photo-wrap">
-            <img className="hero-photo" src={profile} alt="Himeth Silva" />
+            <div className="photo-card">
+              <div className="photo-badge">
+                <span className="photo-dot" />
+                Seeking Internship
+              </div>
+              <img className="hero-photo" src={profile} alt="Himeth Silva" />
+            </div>
           </div>
         </div>
       </section>
 
+      {/* About */}
       <section className="section-card" id="about">
         <h2>About Me</h2>
         <p>
@@ -46,6 +59,7 @@ function App() {
         </p>
       </section>
 
+      {/* Skills */}
       <section className="section-card" id="skills">
         <h2>Skills</h2>
         <div className="skill-list">
@@ -62,51 +76,93 @@ function App() {
         </div>
       </section>
 
+      {/* Projects */}
       <section className="section-card" id="projects">
-        <h2>Projects</h2>
+        <div className="section-head">
+          <h2>Projects</h2>
+          <p className="muted">A few projects I’ve worked on recently.</p>
+        </div>
 
-        <div className="projects-grid">
-          <div className="project-card">
-            <h3>SDGP Project</h3>
-            <p>
-              A major software development group project focused on solving
-              real-world problems through intelligent system design and
-              application development.
+        <div className="grid">
+          <div className="card">
+            <div className="card-top">
+              <h3>SDGP Project</h3>
+              <span className="pill">Team</span>
+            </div>
+            <p className="muted">
+              Main software development group project focused on real-world
+              problem solving through system design and implementation.
             </p>
-            <div className="project-tags">
-              <span>Software Engineering</span>
-              <span>Team Project</span>
+            <div className="tag-row">
+              <span className="tag">System Design</span>
+              <span className="tag">Web App</span>
+              <span className="tag">Teamwork</span>
+            </div>
+            <div className="btn-row">
+              <a
+                className="link-btn"
+                href="#"
+                onClick={(e) => e.preventDefault()}
+              >
+                Private / Coming soon
+              </a>
             </div>
           </div>
 
-          <div className="project-card">
-            <h3>Frontend Web Project</h3>
-            <p>
-              A modern frontend web application built using React with a strong
-              focus on clean user interface design and responsive layouts.
+          <div className="card">
+            <div className="card-top">
+              <h3>Frontend Web Project</h3>
+              <span className="pill">React</span>
+            </div>
+            <p className="muted">
+              A modern React frontend focused on clean UI, responsive layouts,
+              and smooth user experience.
             </p>
-            <div className="project-tags">
-              <span>React</span>
-              <span>Frontend</span>
+            <div className="tag-row">
+              <span className="tag">React</span>
+              <span className="tag">UI</span>
+              <span className="tag">Responsive</span>
+            </div>
+            <div className="btn-row">
+              <a
+                className="link-btn"
+                href="#"
+                onClick={(e) => e.preventDefault()}
+              >
+                GitHub (add later)
+              </a>
             </div>
           </div>
 
-          <div className="project-card">
-            <h3>IoT Smart Parking System</h3>
-            <p>
-              An ESP32-based smart parking system using ultrasonic sensors,
-              MQTT, and automated gate control for real-time parking
-              management.
+          <div className="card">
+            <div className="card-top">
+              <h3>IoT Smart Parking System</h3>
+              <span className="pill">ESP32</span>
+            </div>
+            <p className="muted">
+              ESP32-based parking automation with ultrasonic sensing, servo gate
+              control, and MQTT cloud publishing.
             </p>
-            <div className="project-tags">
-              <span>ESP32</span>
-              <span>IoT</span>
-              <span>MQTT</span>
+            <div className="tag-row">
+              <span className="tag">ESP32</span>
+              <span className="tag">MQTT</span>
+              <span className="tag">Sensors</span>
+            </div>
+            <div className="btn-row">
+              <a
+                className="link-btn"
+                href="https://github.com/ghhrsilva/iot-smart-parking-system"
+                target="_blank"
+                rel="noreferrer"
+              >
+                GitHub Repo
+              </a>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Contact */}
       <section className="section-card contact-section" id="contact">
         <h2>Contact</h2>
         <div className="contact-list">
