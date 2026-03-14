@@ -1,4 +1,5 @@
 import "./App.css";
+import profile from "./assets/profile.jpg";
 
 function App() {
   return (
@@ -14,21 +15,23 @@ function App() {
       </nav>
 
       <section className="hero">
-        <div className="hero-content">
-          <p className="hero-tag">Computer Science Undergraduate</p>
-          <h1>Hi, I'm Himeth Randil Silva</h1>
-          <p className="hero-description">
-            Frontend, Full-Stack, and IoT-focused developer building practical
-            software systems and real-world technology solutions.
-          </p>
+        <div className="hero-inner">
+          <div className="hero-text">
+            <p className="hero-tag">Computer Science Undergraduate</p>
+            <h1>Hi, I'm Himeth Randil Silva</h1>
+            <p className="hero-description">
+              Frontend, Full-Stack, and IoT-focused developer building practical
+              software systems and real-world technology solutions.
+            </p>
 
-          <div className="hero-buttons">
-            <a href="#projects" className="btn primary-btn">
-              View Projects
-            </a>
-            <a href="#contact" className="btn secondary-btn">
-              Contact Me
-            </a>
+            <div className="hero-buttons">
+              <a href="#projects" className="btn primary-btn">View Projects</a>
+              <a href="#contact" className="btn secondary-btn">Contact Me</a>
+            </div>
+          </div>
+
+          <div className="hero-photo-wrap">
+            <img className="hero-photo" src={profile} alt="Himeth Silva" />
           </div>
         </div>
       </section>
