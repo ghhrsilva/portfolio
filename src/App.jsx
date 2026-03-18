@@ -1,4 +1,6 @@
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { Mail, MapPin, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import "./App.css";
 import profile from "./assets/profile.jpg";
 
@@ -33,15 +35,139 @@ const floatAnimation = {
   },
 };
 
-function App() {
+// 3D Card Hover Effect Component
+function TiltCard({ children, className, variants }) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x, { stiffness: 400, damping: 30 });
+  const mouseYSpring = useSpring(y, { stiffness: 400, damping: 30 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
   return (
-    <div className="portfolio">
+    <motion.div
+      variants={variants}
+      className={`perspective-wrap ${className || ""}`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function App() {
+  const [formStatus, setFormStatus] = useState("idle");
+  const [isHovering, setIsHovering] = useState(false);
+
+  // Custom Cursor Logic
+  const cursorX = useMotionValue(-100);
+  const cursorY = useMotionValue(-100);
+  const springConfig = { damping: 25, stiffness: 400, mass: 0.5 };
+  const cursorXSpring = useSpring(cursorX, springConfig);
+  const cursorYSpring = useSpring(cursorY, springConfig);
+
+  useEffect(() => {
+    const moveCursor = (e) => {
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
+    };
+    window.addEventListener("mousemove", moveCursor);
+    return () => window.removeEventListener("mousemove", moveCursor);
+  }, [cursorX, cursorY]);
+
+  // Handle Form Submission with Web3Forms
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setFormStatus("loading");
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    // Web3Forms Access Key
+    // You should get your own free key from web3forms.com
+    formData.append("access_key", "725958fa-ead8-43f2-aab0-9b357c17fc03");
+
+    const object = Object.fromEntries(formData);
+    const json = JSON.stringify(object);
+
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: json,
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setFormStatus("success");
+        form.reset();
+        setTimeout(() => setFormStatus("idle"), 5000); // Reset after 5s
+      } else {
+        setFormStatus("error");
+        setTimeout(() => setFormStatus("idle"), 5000);
+      }
+    } catch (error) {
+      console.error(error);
+      setFormStatus("error");
+      setTimeout(() => setFormStatus("idle"), 5000);
+    }
+  };
+
+  return (
+    <div
+      className="portfolio"
+      onMouseDown={() => setIsHovering(true)}
+      onMouseUp={() => setIsHovering(false)}
+    >
+      {/* Custom Cursor */}
+      <motion.div
+        className={`custom-cursor ${isHovering ? "hovering" : ""}`}
+        style={{
+          x: cursorXSpring,
+          y: cursorYSpring,
+        }}
+      />
+
+      {/* Ambient Background Orbs */}
+      <div className="ambient-orb orb-1" />
+      <div className="ambient-orb orb-2" />
+
       {/* Navbar: drops down smoothly */}
-      <motion.nav 
+      <motion.nav
         className="navbar"
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
       >
         <div className="nav-logo">Himeth Silva</div>
         <div className="nav-links">
@@ -55,36 +181,51 @@ function App() {
       {/* Hero */}
       <section className="hero">
         <div className="hero-inner">
-          <motion.div 
+          <motion.div
             className="hero-text"
             variants={staggerContainer}
             initial="hidden"
             animate="show"
           >
             <motion.p variants={fadeUp} className="hero-tag">Computer Science Undergraduate</motion.p>
-            <motion.h1 variants={fadeUp}>Hi, I'm Himeth Randil Silva</motion.h1>
+            <motion.h1 variants={fadeUp} className="gradient-text">Hi, I'm Himeth Randil Silva</motion.h1>
             <motion.p variants={fadeUp} className="hero-description">
               Frontend, Full-Stack, and IoT-focused developer building practical
               software systems and real-world technology solutions.
             </motion.p>
 
             <motion.div variants={fadeUp} className="hero-buttons">
-              <a href="#projects" className="btn primary-btn">
+              <a
+                href="#projects"
+                className="btn primary-btn"
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+              >
                 View Projects
               </a>
-              <a href="#contact" className="btn secondary-btn">
+              <a
+                href="#contact"
+                className="btn secondary-btn"
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+              >
                 Contact Me
               </a>
             </motion.div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="hero-photo-wrap"
             initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
           >
-            <motion.div className="photo-card" animate={floatAnimation}>
+            <motion.div
+              className="photo-card"
+              animate={floatAnimation}
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+            >
               <div className="photo-badge">
                 <span className="photo-dot" />
                 Seeking Internship
@@ -96,8 +237,8 @@ function App() {
       </section>
 
       {/* About */}
-      <motion.section 
-        className="section-card" 
+      <motion.section
+        className="section-card"
         id="about"
         initial="hidden"
         whileInView="show"
@@ -114,8 +255,8 @@ function App() {
       </motion.section>
 
       {/* Skills */}
-      <motion.section 
-        className="section-card" 
+      <motion.section
+        className="section-card"
         id="skills"
         initial="hidden"
         whileInView="show"
@@ -125,14 +266,21 @@ function App() {
         <motion.h2 variants={fadeUp}>Skills</motion.h2>
         <motion.div className="skill-list" variants={staggerContainer}>
           {["Java", "Python", "JavaScript", "React", "HTML", "CSS", "Git", "ESP32", "Arduino", "MQTT"].map((skill) => (
-            <motion.span key={skill} variants={fadeUp}>{skill}</motion.span>
+            <motion.span
+              key={skill}
+              variants={fadeUp}
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+            >
+              {skill}
+            </motion.span>
           ))}
         </motion.div>
       </motion.section>
 
       {/* Projects */}
-      <motion.section 
-        className="section-card" 
+      <motion.section
+        className="section-card"
         id="projects"
         initial="hidden"
         whileInView="show"
@@ -145,7 +293,8 @@ function App() {
         </motion.div>
 
         <motion.div className="grid" variants={staggerContainer}>
-          <motion.div className="card" variants={fadeUp}>
+          {/* Project 1 */}
+          <TiltCard variants={fadeUp} className="card">
             <div className="card-top">
               <h3>SDGP Project</h3>
               <span className="pill">Team</span>
@@ -164,13 +313,16 @@ function App() {
                 className="link-btn"
                 href="#"
                 onClick={(e) => e.preventDefault()}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
               >
                 Private / Coming soon
               </a>
             </div>
-          </motion.div>
+          </TiltCard>
 
-          <motion.div className="card" variants={fadeUp}>
+          {/* Project 2 */}
+          <TiltCard variants={fadeUp} className="card">
             <div className="card-top">
               <h3>Frontend Web Project</h3>
               <span className="pill">React</span>
@@ -189,13 +341,16 @@ function App() {
                 className="link-btn"
                 href="#"
                 onClick={(e) => e.preventDefault()}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
               >
                 GitHub (add later)
               </a>
             </div>
-          </motion.div>
+          </TiltCard>
 
-          <motion.div className="card" variants={fadeUp}>
+          {/* Project 3 */}
+          <TiltCard variants={fadeUp} className="card">
             <div className="card-top">
               <h3>IoT Smart Parking System</h3>
               <span className="pill">ESP32</span>
@@ -215,17 +370,19 @@ function App() {
                 href="https://github.com/ghhrsilva/iot-smart-parking-system"
                 target="_blank"
                 rel="noreferrer"
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
               >
                 GitHub Repo
               </a>
             </div>
-          </motion.div>
+          </TiltCard>
         </motion.div>
       </motion.section>
 
       {/* Contact */}
-      <motion.section 
-        className="contactWrap" 
+      <motion.section
+        className="contactWrap"
         id="contact"
         initial="hidden"
         whileInView="show"
@@ -246,27 +403,10 @@ function App() {
         <div className="contactGrid">
           {/* Left: Form */}
           <motion.div className="contactCard" variants={slideInLeft}>
-            <form
-              className="contactForm"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const form = e.currentTarget;
-                const name = form.name.value.trim();
-                const email = form.email.value.trim();
-                const msg = form.message.value.trim();
-
-                const subject = encodeURIComponent(`Portfolio message from ${name || "someone"}`);
-                const body = encodeURIComponent(
-                  `Name: ${name}\nEmail: ${email}\n\nMessage:\n${msg}`
-                );
-
-                window.location.href = `mailto:ghhrsilva@gmail.com?subject=${subject}&body=${body}`;
-                form.reset();
-              }}
-            >
+            <form className="contactForm" onSubmit={handleFormSubmit}>
               <label>
                 Name
-                <input name="name" placeholder="Your name..." />
+                <input name="name" placeholder="Your name..." required />
               </label>
 
               <label>
@@ -279,7 +419,19 @@ function App() {
                 <textarea name="message" rows="6" placeholder="Your message..." required />
               </label>
 
-              <button className="sendBtn" type="submit">Send Message</button>
+              <button
+                className="sendBtn"
+                type="submit"
+                disabled={formStatus === "loading"}
+                style={{ opacity: formStatus === "loading" ? 0.7 : 1 }}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+              >
+                {formStatus === "idle" && <><Send size={18} style={{ marginRight: '8px', verticalAlign: 'middle', display: 'inline-block', position: 'relative', top: '-2px' }} /> Send Message</>}
+                {formStatus === "loading" && "Sending... "}
+                {formStatus === "success" && <><CheckCircle2 size={18} style={{ marginRight: '8px', verticalAlign: 'middle', display: 'inline-block', position: 'relative', top: '-2px' }} /> Sent Successfully!</>}
+                {formStatus === "error" && <><AlertCircle size={18} style={{ marginRight: '8px', verticalAlign: 'middle', display: 'inline-block', position: 'relative', top: '-2px' }} /> Error Sending</>}
+              </button>
             </form>
           </motion.div>
 
@@ -289,17 +441,26 @@ function App() {
               <h3>Contact Information</h3>
 
               <div className="infoRow">
-                <div className="infoIcon">✉️</div>
+                <div className="infoIcon">
+                  <Mail size={20} color="#38bdf8" />
+                </div>
                 <div>
                   <div className="infoLabel">Email</div>
-                  <a className="infoValue" href="mailto:ghhrsilva@gmail.com">
+                  <a
+                    className="infoValue"
+                    href="mailto:ghhrsilva@gmail.com"
+                    onMouseEnter={() => setIsHovering(true)}
+                    onMouseLeave={() => setIsHovering(false)}
+                  >
                     ghhrsilva@gmail.com
                   </a>
                 </div>
               </div>
 
               <div className="infoRow">
-                <div className="infoIcon">📍</div>
+                <div className="infoIcon">
+                  <MapPin size={20} color="#38bdf8" />
+                </div>
                 <div>
                   <div className="infoLabel">Location</div>
                   <div className="infoValue">Sri Lanka</div>
